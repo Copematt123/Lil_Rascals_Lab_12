@@ -1,0 +1,16 @@
+---
+title: "Lil_Rascals_Lab_12"
+author: "Matthew Copeland"
+date: "April 10, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(cowplot)
+library(stringr)
+library(gapminder)
+```
