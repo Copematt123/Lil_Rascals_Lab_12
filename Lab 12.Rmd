@@ -16,14 +16,15 @@ library(gapminder)
 
 ```
 ### Two Sample Permutation Test
-Question: What is the difference in life expectancy between Africa and Asia
+Question: Is there a difference in life expectancy in Asian countries?
 ```{r}
 gapminder3 <- gapminder
 
 life_exp <- gapminder3 %>%
   select(lifeExp)
+life_exp <- life_exp$lifeExp
 
-perm_mean <- function(perms = 1000, value1, value2, n1)
+perm_mean <- function(perms = 1000, value1, n1)
 {
   ## Variables ##
   # perms: The number of permutations 
@@ -41,8 +42,8 @@ perm_mean <- function(perms = 1000, value1, value2, n1)
     # Step 2:
     # Randomly separate vector "values" into disjoint 
     # groups of size "n1" and "length(values) - n1" respectively
-    rsamp <- sample(value1, length(value1), replace = FALSE, prob = NULL)
-    other <- sample(value2, length(value2), replace = FALSE, prob = NULL)
+    rsamp <- sample(value1, n1, replace = FALSE)
+    other <- sample(value1, length(value1)-n1, replace = FALSE)
     # Step 3:
     # Compute the sample means for the two groups from 
     # step 2
@@ -59,15 +60,29 @@ perm_mean <- function(perms = 1000, value1, value2, n1)
   return(mean_mat)
 }
 asia <- gapminder3 %>% filter(continent == "Asia") %>% select(lifeExp)
-africa <- gapminder3 %>% filter(continent == "Africa") %>% select(lifeExp)
-means <- as.tibble(perm_mean(value1 = asia, value2= africa, n1=20))
+
+means <- as.tibble(perm_mean(value1 = life_exp, n1=200))
+summary(asia)
+summary(life_exp)
+life_exp <- life_exp$lifeExp
+realdiff <- mean(asia$lifeExp)-mean(life_exp)
+
+std <- sqrt((sd(asia$lifeExp))^2/length(asia$lifeExp) + (sd(life_exp))^2/length(life_exp))
+z_score <- realdiff/std
+z_score
 ggplot(means, aes(x=V1 ))+geom_histogram()+
   xlab("Means")+
+  geom_vline(xintercept = realdiff, color = "red", size = .3)+
   ylab("Number")+
   ggtitle("Difference in Means in Life Expectancy")
 ```
+Analysis: 
+As you can see from the plot and the summary, the values of life expectancy are significantly higher for Asian countries on average than we would expect from various sample trials. Therefore, in Asian you have a higher life expectancy than in other places around the world. The mean of the random 1000 samples implies that there is no correlation between the difference in means of the random sample of the whole population, but the line shows that there is a difference in the real mean of Asian countries vs. other countries. 
 
+The mean life expectancy around the world is 59.47 and the median is 60.71 whereas in Asia the mean is 60.06 and the median is 61.79 which is noticably higher. 
+So we can conclude that the answer to our question is yes that life expectancy in Asian countries is much higher than the rest of the world.  
 
+We also conducted a significance test and got a z-score of .8769146 which means a p-value of .19 so this result is significant at the .19 significance level. 
 ### Correlation Permutation Test
 Question:
 Is there a correlation between the GDP per Capita and life expectency?
@@ -116,14 +131,25 @@ perm_cor <- function(perms = 1000, x, y)
   # Return new updated vector, created in step 1
   return(corr_mat)
 }
-
+summary(gdp_percap)
+summary(life_exp)
 correlation <- as.tibble(perm_cor(x=gdp_percap,y=life_exp))
-
+realcorr <- cor(gdp_percap, life_exp)
+std <- sqrt((sd(gdp_percap))^2/length(gdp_percap) + (sd(life_exp))^2/length(life_exp))
+z_score <- realcorr/std
 ggplot(correlation, aes(x=V1))+geom_histogram()+
+  geom_vline(xintercept = realcorr, color = "red", size = .3)+
   xlab("Correlation")+
   ylab("Number")+
   ggtitle("Correlation between GDP/Capita and Life Expectancy ")
 ```
+Analysis:
+The plot shows a normal distribution of data when tested over 1000 random samples. The mean of the sample data is centered around zero which would imply that the two factors are uncorrelated. This being said, some generated samples show a weak positive and a weak negative linear correlation. 
+Overall, as you can see from the vertical line, there is a positive correlation between life expectancy and GDP per capita. This correlation is .5837062 which is a relatively strong positive correlation between the two variables implying that as one increases the other should also increase on average. 
+We also calculated the z-score and got z=.00244 which means the p-value is about .50 which means these functions are correlated with a statistical significance at the .5
+level. 
 
-The plot shows a normal distribution of data when tested over 100 random samples. The mean of the sample data is centered around zero which would imply that the two factors are uncorrelated. This being said, some generated samples show a weak positive and a weak negative linear correlation. 
+### Team Summary
 
+Kelsey McKenna
+I created the two tests in the function and made sure they worked correctly. I formulated the questions and created the analysis sections. 
