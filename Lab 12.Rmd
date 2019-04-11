@@ -1,6 +1,6 @@
 ---
 title: "Lil_Rascals_Lab_12"
-author: "Matthew Copeland"
+author: "Lil Rascals"
 date: "April 10, 2019"
 output: html_document
 ---
@@ -13,10 +13,17 @@ library(ggplot2)
 library(cowplot)
 library(stringr)
 library(gapminder)
+
 ```
 ### Two Sample Permutation Test
+Question: What is the difference in life expectancy between Africa and Asia
 ```{r}
-perm_mean <- function(perms = 1000, values, n1)
+gapminder3 <- gapminder
+
+life_exp <- gapminder3 %>%
+  select(lifeExp)
+
+perm_mean <- function(perms = 1000, value1, value2, n1)
 {
   ## Variables ##
   # perms: The number of permutations 
@@ -34,13 +41,13 @@ perm_mean <- function(perms = 1000, values, n1)
     # Step 2:
     # Randomly separate vector "values" into disjoint 
     # groups of size "n1" and "length(values) - n1" respectively
-    rsamp <- sample(values, n1, replace = FALSE)
-    other <- sample(values, length(values)-n1, replace = FALSE)
+    rsamp <- sample(value1, length(value1), replace = FALSE, prob = NULL)
+    other <- sample(value2, length(value2), replace = FALSE, prob = NULL)
     # Step 3:
     # Compute the sample means for the two groups from 
     # step 2
-    A <- mean(rsamp$lifeExp)
-    B <- mean(other$lifeExp)
+    A <- mean(rsamp)
+    B <- mean(other)
     # Step 4: 
     # Compute the difference in sample means, store the
     # value in the vector from step 1
@@ -51,8 +58,13 @@ perm_mean <- function(perms = 1000, values, n1)
   # Return new updated vector, created in step 1
   return(mean_mat)
 }
-
-correlation <- as.tibble(perm_mean(x=gdp_percap,y=life_exp))
+asia <- gapminder3 %>% filter(continent == "Asia") %>% select(lifeExp)
+africa <- gapminder3 %>% filter(continent == "Africa") %>% select(lifeExp)
+means <- as.tibble(perm_mean(value1 = asia, value2= africa, n1=20))
+ggplot(means, aes(x=V1 ))+geom_histogram()+
+  xlab("Means")+
+  ylab("Number")+
+  ggtitle("Difference in Means in Life Expectancy")
 ```
 
 
@@ -107,7 +119,10 @@ perm_cor <- function(perms = 1000, x, y)
 
 correlation <- as.tibble(perm_cor(x=gdp_percap,y=life_exp))
 
-ggplot(correlation, aes(x=V1))+geom_histogram()
+ggplot(correlation, aes(x=V1))+geom_histogram()+
+  xlab("Correlation")+
+  ylab("Number")+
+  ggtitle("Correlation between GDP/Capita and Life Expectancy ")
 ```
 
 The plot shows a normal distribution of data when tested over 100 random samples. The mean of the sample data is centered around zero which would imply that the two factors are uncorrelated. This being said, some generated samples show a weak positive and a weak negative linear correlation. 
