@@ -156,4 +156,6 @@ I created the two tests in the function and made sure they worked correctly. I f
 James Burke
 I helped come up with the tests and how to do them. I also wrote part of the analysis.
 Matthew Copeland
-I helped with the questions we were trying to answer and made the graphs to complement the tests.  
+I helped with the questions we were trying to answer and made the graphs to complement the tests. 
+Shreeya Basrur
+I also helped with the questions and some of the analysis as well. 
